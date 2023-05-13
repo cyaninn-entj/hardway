@@ -1,6 +1,6 @@
 # --------/etc/hosts 파일 배포 deploy.sh--------
 #!/bin/bash
-for i in worker1 master2 master3 lb; do
+for i in worker1 master2 master3 lb1; do
   sudo scp -i /home/ubuntu/osckorea.pem /etc/hosts ubuntu@${i}:/home/ubuntu
 done
 
@@ -34,7 +34,7 @@ cp admin.kubeconfig kube-controller-manager.kubeconfig kube-scheduler.kubeconfig
 
 #암호화 구성 파일 배포
 for i in master2 master3; do
-  sudo scp -i /home/ubuntu/osckorea.pem /home/ubuntu/data-encryption/encryption-config.yaml ubuntu@${i}:~/
+  sudo scp -i /home/ubuntu/osckorea.pem encryption-config.yaml ubuntu@${i}:~/
 done
 
-cp /home/ubuntu/data-encryption/encryption-config.yaml /home/ubuntu
+cp encryption-config.yaml /home/ubuntu

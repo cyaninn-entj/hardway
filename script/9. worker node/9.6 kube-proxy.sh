@@ -23,3 +23,19 @@ RestartSec=5
 [Install]
 WantedBy=multi-user.target
 EOF
+
+{
+systemctl disable kubeproxy.service
+systemctl stop kubelet.service
+}
+
+systemctl daemon-reload
+systemctl reset-failed
+
+{
+systemctl enable kubelet.service
+systemctl start kubelet.service
+}
+
+systemctl status kubelet.service --no-page
+journalctl -u kubelet.service -m

@@ -1,5 +1,5 @@
 #!/bin/bash
-KUBERNETES_PUBLIC_ADDRESS=$(cat /etc/hosts | grep lb | awk '{print $1}')
+KUBERNETES_PUBLIC_ADDRESS=$(cat /etc/hosts | grep lb1 | awk '{print $1}')
 
 # The kubelet Kubernetes Configuration File
 for instance in worker1; do

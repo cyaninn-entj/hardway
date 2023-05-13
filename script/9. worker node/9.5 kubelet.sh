@@ -1,8 +1,8 @@
 #!/bin/bash
 POD_CIDR=10.200.1.0/24
 
-cp /home/ubuntu/${HOSTNAME}-key.pem /home/ubuntu/${HOSTNAME}.pem /var/lib/kubelet/
-cp /home/ubuntu/${HOSTNAME}.kubeconfig /var/lib/kubelet/kubeconfig
+cp /home/ubuntu/worker1-key.pem /home/ubuntu/worker1.pem /var/lib/kubelet/
+cp /home/ubuntu/worker1.kubeconfig /var/lib/kubelet/kubeconfig
 cp /home/ubuntu/ca.pem /var/lib/kubernetes/
 
 # Config File
@@ -18,14 +18,14 @@ authentication:
     clientCAFile: "/var/lib/kubernetes/ca.pem"
 authorization:
   mode: Webhook
-clusterDomain: "cluster.local"
+clusterDomain: "10.32.0.1"
 clusterDNS:
   - "10.32.0.10"
 podCIDR: "${POD_CIDR}"
 resolvConf: "/run/systemd/resolve/resolv.conf"
 runtimeRequestTimeout: "15m"
-tlsCertFile: "/var/lib/kubelet/${HOSTNAME}.pem"
-tlsPrivateKeyFile: "/var/lib/kubelet/${HOSTNAME}-key.pem"
+tlsCertFile: "/var/lib/kubelet/worker1.pem"
+tlsPrivateKeyFile: "/var/lib/kubelet/worker1-key.pem"
 containerRuntimeEndpoint: "unix:///var/run/containerd/containerd.sock"
 EOF
 
@@ -52,24 +52,7 @@ RestartSec=5
 WantedBy=multi-user.target
 EOF
 
-# 수정한버전
-cat <<EOF | sudo tee /etc/systemd/system/kubelet.service
-[Unit]
-Description=Kubernetes Kubelet
-Documentation=https://github.com/kubernetes/kubernetes
-After=containerd.service
-Requires=containerd.service
-[Service]
-ExecStart=/usr/local/bin/kubelet \\
-  --config=/var/lib/kubelet/kubelet-config.yaml \\
-  --kubeconfig=/var/lib/kubelet/kubeconfig \\
-  --register-node=true \\
-  --v=2
-Restart=on-failure
-RestartSec=5
-[Install]
-WantedBy=multi-user.target
-EOF
+
 
 {
 systemctl disable kubelet.service

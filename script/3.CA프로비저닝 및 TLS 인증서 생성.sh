@@ -1,11 +1,11 @@
 # /etc/hosts 파일 수정
 sudo vim /etc/hosts
 
-172.31.1.220 master1
-172.31.12.106 master2
-172.31.9.96 master3
-172.31.6.162 worker1
-172.31.2.224 lb
+172.31.11.217 master1
+172.31.4.226 master2
+172.31.5.22 master3
+172.31.5.76 worker1
+172.31.15.12 lb1
 
 
 # 디렉토리 이동 후 진행
@@ -23,8 +23,8 @@ chmod +x cfssl_linux-amd64 cfssljson_linux-amd64
 sudo mv cfssl_linux-amd64 /usr/local/bin/cfssl
 sudo mv cfssljson_linux-amd64 /usr/local/bin/cfssljson
 
-# kubelet 설치
-wget https://storage.googleapis.com/kubernetes-release/release/v1.18.2/bin/linux/amd64/kubectl
+# kubectl 설치
+wget https://storage.googleapis.com/kubernetes-release/release/v1.23.0/bin/linux/amd64/kubectl
 chmod +x kubectl
 sudo mv kubectl /usr/local/bin/
 
@@ -122,9 +122,10 @@ cfssl gencert \
   -ca=ca.pem \
   -ca-key=ca-key.pem \
   -config=ca-config.json \
-  -hostname=worker1,172.31.14.142,43.201.31.225 \
+  -hostname=worker1,172.31.5.76,13.124.243.64 \
   -profile=kubernetes \
   worker1-csr.json | cfssljson -bare worker1
+done
 
 #kube-controller-manager 인증서 및 키 생성
 cat > kube-controller-manager-csr.json << EOF
@@ -242,7 +243,7 @@ cfssl gencert \
 #!/bin/bash
 
 # Load Balancer VM IP
-KUBERNETES_PUBLIC_ADDRESS=$(cat /etc/hosts | grep lb | awk '{print $1}')
+KUBERNETES_PUBLIC_ADDRESS=$(cat /etc/hosts | grep lb1 | awk '{print $1}')
 KUBERNETES_HOSTNAMES=kubernetes,kubernetes.default,kubernetes.default.svc,kubernetes.default.svc.cluster,kubernetes.svc.cluster.local
 
 cat > kubernetes-csr.json << EOF

@@ -22,8 +22,8 @@ State or Province Name (full name) [Some-State]:Seoul
 Locality Name (eg, city) []:Seoul
 Organization Name (eg, company) [Internet Widgits Pty Ltd]:OSC
 Organizational Unit Name (eg, section) []:Kubernetes
-Common Name (e.g. server FQDN or YOUR name) []:conlb.YOUR DOMAIN
-Email Address []:ray.lee@osckorea.com
+Common Name (e.g. server FQDN or YOUR name) []:yeonwoo
+Email Address []:yeonwoo.sung@osckorea.com
 
 # Merge File
 cat /etc/haproxy/api_key.pem /etc/haproxy/api_cert.pem > /etc/haproxy/k8s_api.pem
@@ -33,6 +33,7 @@ cat /etc/haproxy/api_key.pem /etc/haproxy/api_cert.pem > /etc/haproxy/k8s_api.pe
 
 
 # Backup haproxy default config file
+# 아래 서버 ip 바꿔줘야 함
 mv /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg.bak
 
 vim /etc/haproxy/haproxy.cfg
@@ -70,36 +71,36 @@ defaults
         errorfile 504 /etc/haproxy/errors/504.http
 ### Controllers ###
 frontend apiservers
-         bind *:80
-         bind *:443 ssl crt /etc/haproxy/k8s_api.pem
-         http-request redirect scheme https unless { ssl_fc }
-         mode http
-         option forwardfor
-         default_backend k8s_apiservers
+        bind *:80
+        bind *:443 ssl crt /etc/haproxy/k8s_api.pem
+        http-request redirect scheme https unless { ssl_fc }
+        mode http
+        option forwardfor
+        default_backend k8s_apiservers
 frontend kube_api
-         bind *:6443
-         mode tcp
-         option tcplog
-         default_backend k8s_apiservers_6443
+        bind *:6443
+        mode tcp
+        option tcplog
+        default_backend k8s_apiservers_6443
 backend k8s_apiservers
-         mode http
-         balance roundrobin
-         option forwardfor
-         option httpchk GET / HTTP/1.1\r\nHost:kubernetes.default.svc.cluster.local
-         default-server inter 10s fall 2
-         server master1 172.31.6.115:80 check
-         server master2 172.31.1.68:80 check
-         server master3 172.31.0.222:80 check
-
+        mode http
+        balance roundrobin
+        option forwardfor
+        option httpchk GET / HTTP/1.1\r\nHost:kubernetes.default.svc.cluster.local
+        default-server inter 10s fall 2
+        server master1 172.31.11.217:80 check
+        server master2 172.31.4.226:80 check
+        server master3 172.31.5.22:80 check
 backend k8s_apiservers_6443
-         mode tcp
-         option ssl-hello-chk
-         option log-health-checks
-         default-server inter 10s fall 2
-         server master1 172.31.6.115:80 check
-         server master2 172.31.1.68:80 check
-         server master3 172.31.0.222:80 check
+        mode tcp
+        option ssl-hello-chk
+        option log-health-checks
+        default-server inter 10s fall 2
+        server master1 172.31.11.217:6443 check
+        server master2 172.31.4.226:6443 check
+        server master3 172.31.5.22:6443 check
 
-
+systemctl enable haproxy
 systemctl restart haproxy
-curl -k https://15.165.17.246/healthz
+curl -k https://43.201.147.59/healthz
+curl -k --cacert /root/ca.pem https://43.201.147.59:6443/version

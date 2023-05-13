@@ -25,6 +25,7 @@ sudo cp hosts /etc/hosts
 }
 
 #etcd.service systemd unit file:
+# initial-cluster ip 바꿔줘야함
 cat <<EOF | sudo tee /etc/systemd/system/etcd.service
 [Unit]
 Description=etcd
@@ -47,7 +48,7 @@ ExecStart=/usr/local/bin/etcd \
   --listen-client-urls https://${INTERNAL_IP}:2379,https://127.0.0.1:2379 \
   --advertise-client-urls https://${INTERNAL_IP}:2379 \
   --initial-cluster-token etcd-cluster-0 \\
-  --initial-cluster master1=https://172.31.6.115:2380,master2=https://172.31.1.68:2380,master3=https://172.31.0.222:2380 \
+  --initial-cluster master1=https://172.31.11.217:2380,master2=https://172.31.4.226:2380,master3=https://172.31.5.22:2380 \
   --initial-cluster-state new \
   --data-dir=/var/lib/etcd
 Restart=on-failure
@@ -64,13 +65,18 @@ EOF
   sudo systemctl start etcd
 }
 
-#etcd 서비스 삭제
-{
-  sudo systemctl stop etcd
-  sudo systemctl disable etcd
+#etcd cleanup.sh
+#!/bin/bash
+sudo systemctl stop etcd
+sudo systemctl disable etcd
+sudo rm /etc/systemd/system/etcd
+sudo rm /etc/systemd/system/etcd.service
+sudo rm /usr/lib/systemd/system/etcd
+sudo rm /usr/lib/systemd/system/etcd.service
+sudo systemctl daemon-reload
+sudo systemctl reset-failed
 
-  sudo rm /etc/systemd/system/etcd.service
 
-  sudo systemctl daemon-reload
-  sudo systemctl reset-failed
-}
+rm admin.kubeconfig ca.pem 
+rm ca-key.pem kube-controller-manager.kubeconfig kubernetes-key.pem
+rm kubernetes.pem kube-scheduler.kubeconfig service-account-key.pem service-account.pem

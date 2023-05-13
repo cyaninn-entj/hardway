@@ -1,6 +1,9 @@
+vim cp-step3.sh
+sh cp-step3.sh
+#etcd-server 바꿔줘야함
 #!/bin/bash
 {
-  KUBERNETES_PUBLIC_ADDRESS=$(cat /etc/hosts | grep lb | awk '{print $1}')
+  KUBERNETES_PUBLIC_ADDRESS=$(cat /etc/hosts | grep lb1 | awk '{print $1}')
   INTERNAL_IP=$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)
 }
 
@@ -25,7 +28,7 @@ ExecStart=/usr/local/bin/kube-apiserver \\
   --etcd-cafile=/var/lib/kubernetes/ca.pem \\
   --etcd-certfile=/var/lib/kubernetes/kubernetes.pem \\
   --etcd-keyfile=/var/lib/kubernetes/kubernetes-key.pem \\
-  --etcd-servers=https://172.31.6.115:2379,https://172.31.1.68:2379,https://172.31.0.222:2379 \\
+  --etcd-servers=https://172.31.11.217:2379,https://172.31.4.226:2379,https://172.31.5.22:2379 \\
   --event-ttl=1h \\
   --encryption-provider-config=/var/lib/kubernetes/encryption-config.yaml \\
   --kubelet-certificate-authority=/var/lib/kubernetes/ca.pem \\
@@ -55,11 +58,22 @@ RestartSec=5
 WantedBy=multi-user.target
 EOF
 
-
+# 실행
 {
   sudo systemctl daemon-reload
   sudo systemctl enable kube-apiserver
   sudo systemctl start kube-apiserver
 }
 
+#확인
 sudo systemctl status kube-apiserver --no-pager
+
+#시스템 삭제
+sudo systemctl stop kube-apiserver
+sudo systemctl disable kube-apiserver
+sudo rm /etc/systemd/system/kube-apiserver
+sudo rm /etc/systemd/system/kube-apiserver.service
+sudo rm /usr/lib/systemd/system/kube-apiserver
+sudo rm /usr/lib/systemd/system/kube-apiserver.service
+sudo systemctl daemon-reload
+sudo systemctl reset-failed

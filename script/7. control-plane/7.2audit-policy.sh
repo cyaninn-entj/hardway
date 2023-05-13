@@ -1,5 +1,5 @@
+vim cp-step2.sh
 #!/bin/bash
-  
 # Create an audit policy for the api server to implement
 cat << EOF | sudo tee /etc/kubernetes/audit-policy.yaml
 apiVersion: audit.k8s.io/v1 # This is required.

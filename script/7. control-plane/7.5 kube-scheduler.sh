@@ -1,3 +1,6 @@
+vim cp-step5.sh
+
+#!/bin/bash
 sudo cp kube-scheduler.kubeconfig /var/lib/kubernetes/
 
 # Create the yaml config files
@@ -25,6 +28,7 @@ RestartSec=5
 WantedBy=multi-user.target
 EOF
 
+sh cp-step5.sh
 {
   sudo systemctl daemon-reload
   sudo systemctl enable kube-scheduler
